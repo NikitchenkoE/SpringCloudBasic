@@ -1,0 +1,45 @@
+#####################################################################
+# Preparation: we need to create account and put some money
+#####################################################################
+
+### Create account for the client
+GET http://localhost:8802/create?client_id=1
+
+### Retrieve id of the account
+GET http://localhost:8802/get/1
+Accept: application/json
+
+> {%
+  client.global.set("accountId", response.body[0].id);
+%}
+
+### Put some money to the account
+GET http://localhost:8802/fund/1?sum=1000
+
+#####################################################################
+# Now we use Processing Service for account operations
+#####################################################################
+
+### Generate credit card
+GET http://localhost:8804/issue/1
+Accept: application/json
+
+> {%
+  client.global.set("cardNumber", response.body);
+%}
+
+### Spend some money
+GET http://localhost:8804/checkout/3776996290823611?sum=500
+
+### Retrieve card number for the account
+GET http://localhost:8804/get?account_id=1
+
+### False
+GET http://localhost:8804/test?fail=true
+
+### Not false
+GET http://localhost:8804/test?fail=false
+
+### Test
+GET http://localhost:8804/actuator/hystrix.stream
+

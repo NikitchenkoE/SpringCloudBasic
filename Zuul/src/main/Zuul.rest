@@ -1,0 +1,39 @@
+#####################################################################
+# Preparation: we need to create account and put some money
+#####################################################################
+
+### Create account for the client
+GET http://localhost:8700/account/create?client_id=1
+
+### Retrieve id of the account
+GET http://localhost:8700/account/get/1
+Accept: application/json
+
+> {%
+  client.global.set("accountId", response.body[0].id);
+%}
+
+### Put some money to the account
+GET http://localhost:8700/account/fund/1?sum=1000
+
+#####################################################################
+# Now we use Processing Service for account operations
+#####################################################################
+
+### Generate credit card
+GET http://localhost:8700/processing/issue/1
+Accept: application/json
+
+> {%
+  client.global.set("cardNumber", response.body);
+%}
+
+### Spend some money
+GET http://localhost:8700/processing/checkout/9553355577545296?sum=500
+
+### Retrieve card number for the account
+GET http://localhost:8700/processing/get?account_id=1
+
+### Get Account by id
+GET http://localhost:8700/processing/get-account/1
+
